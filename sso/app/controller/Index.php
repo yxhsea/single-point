@@ -2,6 +2,7 @@
 namespace app\controller;
 
 use app\BaseController;
+use think\View;
 
 class Index extends BaseController
 {
@@ -13,5 +14,10 @@ class Index extends BaseController
     public function hello($name = 'ThinkPHP6')
     {
         return 'hello,' . $name;
+    }
+
+    public function login()
+    {
+        return 1;
     }
 }
