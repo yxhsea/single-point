@@ -2,16 +2,24 @@
 namespace app\controller;
 
 use app\BaseController;
+use think\facade\View;
+use SSOServer;
 
 class Index extends BaseController
 {
     public function index()
     {
-        return "登录 A 系统成功";
+        return View::fetch('index/index');
     }
 
-    public function user()
+    public function welcome()
     {
-        return "用户列表";
+        return View::fetch('index/welcome');
+    }
+
+    public function logout()
+    {
+        SSOServer::deleteAccessToken();
+        return json(['code' => 0, 'msg' => 'success']);
     }
 }

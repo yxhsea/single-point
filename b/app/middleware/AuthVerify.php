@@ -16,11 +16,11 @@ class AuthVerify
 
     public function handle($request, \Closure $next)
     {
-        $token = cookie(self::TOKEN);
-        if (empty($token)) {
-            $redirectUrl = self::REDIRECT_URL . $request->pathinfo();
-            return redirect(self::SSO_LOGIN_URL . '?redirect_url=' . $redirectUrl);
-        }
+//        $token = cookie(self::TOKEN);
+//        if (empty($token)) {
+//            $redirectUrl = self::REDIRECT_URL . $request->pathinfo();
+//            return redirect(self::SSO_LOGIN_URL . '?redirect_url=' . $redirectUrl);
+//        }
 
         // 验证 token 的有效性
         // 1、可以直接从 redis 中获取 token 验证

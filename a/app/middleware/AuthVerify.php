@@ -8,23 +8,29 @@
 
 namespace app\middleware;
 
+use SSOServer;
+
 class AuthVerify
 {
-    const TOKEN         = 'token';
-    const SSO_LOGIN_URL = 'http://sso.erp.com/login';
-    const REDIRECT_URL = 'http://a.erp.com/';
-
     public function handle($request, \Closure $next)
     {
-        $token = cookie(self::TOKEN);
-        if (empty($token)) {
-            $redirectUrl = self::REDIRECT_URL . $request->pathinfo();
-            return redirect(self::SSO_LOGIN_URL . '?redirect_url=' . $redirectUrl);
+        $accessToken = cookie(SSOServer::ACCESS_TOKEN);
+        if (is_null($accessToken)) {
+            $code = input(SSOServer::PARAM_CODE);
+            if (empty($code)) {
+                $redirectUrl = SSOServer::getRedirectUrl();
+                header("location: {$redirectUrl}");
+            }
+
+            SSOServer::getAccessToken($code, 'http://' . request()->server('HTTP_HOST') . '/'. request()->pathinfo());
         }
 
-        // 验证 token 的有效性
-        // 1、可以直接从 redis 中获取 token 验证
-        // 2、可以调用 oss 系统的 token 验证 API 接口
+//        else {
+            if (! SSOServer::verifyAccessToken()) {
+//                $redirectUrl = SSOServer::getRedirectUrl();
+//                header("location: {$redirectUrl}");
+            }
+//        }
 
         return $next($request);
     }

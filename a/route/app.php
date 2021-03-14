@@ -10,8 +10,5 @@
 // +----------------------------------------------------------------------
 use think\facade\Route;
 
-Route::get('think', function () {
-    return 'hello,ThinkPHP6!';
-});
-
-Route::get('hello/:name', 'index/hello');
+Route::get('index/index', 'index/index')->middleware(\app\middleware\AuthVerify::class);
+Route::get('index/welcome', 'index/welcome')->middleware(\app\middleware\AuthVerify::class);
