@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>新增 SSO 客户端</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.staticfile.org/vue/3.0.5/vue.global.js"></script>
+    <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
+    <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+    <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+</head>
+<body style="text-align: center;margin: 0;padding: 0">
+
+<div id="app" class="container" style="margin: 0; border: 0px solid blue;width: 400px;margin-left: 35%;margin-top: 20px">
+    <h2>新增 SSO 客户端</h2>
+    <div style="border: 0px solid black">
+        <div class="form-group" style="padding: 0px 0px 0px 0px;border: 0px solid green;text-align: left">
+            <label for="name"><span style="color:red;">*</span>系统名称:</label>
+            <input type="text" class="form-control" id="name" v-model="name">
+        </div>
+        <div class="form-group" style="padding: 0px 0px 0px 0px;border: 0px solid red;text-align: left">
+            <label for="client_id"><span style="color:red;">*</span>ClientId:</label>
+            <div style="display: -webkit-box;">
+                <input type="text" class="form-control" id="client_id" style="width: 315px;" disabled v-model="client_id" value="{{ client_id }}">
+                <button type="button" class="btn btn-outline-success" v-on:click="generateClientId">生成</button>
+            </div>
+        </div>
+        <div class="form-group" style="padding: 0px 0px 0px 0px;border: 0px solid red;text-align: left">
+            <label for="client_secret"><span style="color:red;">*</span>ClientSecret:</label>
+            <div style="display: -webkit-box;">
+                <input type="text" class="form-control" id="client_secret" style="width: 315px;" disabled v-model="client_secret" value="{{ client_secret }}">
+                <button type="button" class="btn btn-outline-success" v-on:click="generateClientSecret">生成</button>
+            </div>
+        </div>
+        <div class="form-group" style="padding: 0px 0px 0px 0px;border: 0px solid red;text-align: left">
+            <label for="redirect_url"><span style="color:red;">*</span>重定向地址:</label>
+            <input type="text" class="form-control" id="redirect_url" v-model="redirect_url">
+        </div>
+        <div class="form-group" style="padding: 0px 0px 0px 0px;border: 0px solid red;text-align: left">
+            <label for="logout_url"><span style="color:red;">*</span>退出登录接口:</label>
+            <input type="text" class="form-control" id="logout_url" v-model="logout_url">
+        </div>
+        <div class="form-group" style="padding: 0px 0px 0px 0px;border: 0px solid red;text-align: left">
+            <label for="status"><span style="color:red;">*</span>状态:</label>
+            <select class="form-control" id="status" v-model="status" name="status">
+                <option value="1">启用</option>
+                <option value="0">禁用</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn-primary" v-on:click="save">保存</button>
+        <button type="button" class="btn btn-primary" v-on:click="reset">重置</button>
+    </div>
+</div>
+
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            name: '',
+            client_id: '',
+            client_secret: '',
+            redirect_url: '',
+            logout_url: '',
+            status: 1
+        },
+        methods: {
+            generateClientId() {
+                this.client_id = this._getRandomString(16);
+            },
+            generateClientSecret() {
+                this.client_secret = this._getRandomString(24);
+            },
+            save() {
+                if (this.name === '') {
+                    alert('系统名称不能为空!');
+                    return;
+                }
+
+                if (this.client_id === '') {
+                    alert('ClientId 不能为空!');
+                    return;
+                }
+
+                if (this.client_secret === '') {
+                    alert('ClientSecret 不能为空!');
+                    return;
+                }
+
+                if (this.redirect_url === '') {
+                    alert('重定向地址不能为空!');
+                    return;
+                }
+
+                if (this.logout_url === '') {
+                    alert('退出登录接口不能为空!');
+                    return;
+                }
+
+                //发送 post 请求
+                this.$http.post(
+                    '/api/save',
+                     {
+                         name: this.name,
+                         client_id: this.client_id,
+                         client_secret: this.client_secret,
+                         redirect_url: this.redirect_url,
+                         logout_url: this.logout_url,
+                         status: this.status
+                     },
+                     {
+                         emulateJSON: true
+                     }
+                    ).then(function(res) {
+                        console.log(res);
+                        location.href = '/index/index';
+                }, function(res){
+                    console.log(res.status);
+                });
+            },
+            reset() {
+                this.name = '';
+                this.client_id = '';
+                this.client_secret = '';
+                this.redirect_url = '';
+                this.logout_url = ''
+            },
+            _getRandomString(len) {
+                len = len || 32;
+                // 默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1
+                var $chars = 'abcdefhijkmnprstwxyz2345678';
+                var maxPos = $chars.length;
+                var pwd = '';
+                for (i = 0; i < len; i++) {
+                    pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+                }
+                return pwd;
+            }
+        }
+    })
+</script>
+</html>

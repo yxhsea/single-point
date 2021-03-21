@@ -35,7 +35,12 @@ class Auth extends BaseController
 
             $result = SSOAuth::verifyAuth($params);
             if ($result['is_auth']) {
-                header("location: {$result['redirect_url']}");
+                View::assign([
+                    'is_auth'      => $result['is_auth'],
+                    'redirect_uri' => $redirectUri
+                ]);
+                return View::fetch('auth/show2');
+//                header("location: {$result['redirect_url']}");
             }
         }
 
@@ -43,7 +48,15 @@ class Auth extends BaseController
             $redirectUri = 'http://' . request()->server('HTTP_HOST') . '/' . self::DEFAULT_REDIRECT_URI;
         }
 
-        View::assign(['redirect_uri' => $redirectUri]);
+        $isAuth = 0;
+        if (SSOAuth::verifyAccessToken()) {
+            $isAuth = 1;
+        }
+
+        View::assign([
+            'is_auth'      => $isAuth,
+            'redirect_uri' => $redirectUri
+        ]);
         return View::fetch('auth/show');
     }
 

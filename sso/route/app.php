@@ -12,3 +12,7 @@ use think\facade\Route;
 
 Route::get('auth/show', 'auth/show');
 Route::get('index/index', 'index/index')->middleware(\app\middleware\AuthVerify::class);
+
+Route::get('api/list', 'api/list')->middleware(\app\middleware\ApiVerify::class);
+Route::get('api/info', 'api/info')->middleware(\app\middleware\ApiVerify::class);
+Route::post('api/save', 'api/save')->middleware(\app\middleware\ApiVerify::class);
