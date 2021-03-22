@@ -46,6 +46,8 @@
             redirect_uri: '{$redirect_uri}'
         },
         mounted () {
+            console.log(this.is_auth);
+            console.log(this.redirect_uri);
             if (this.is_auth === 1) {
                 setTimeout(()=>{
                     if (this.redirect_uri === '') {
@@ -81,7 +83,11 @@
                     console.log(res);
                     let data = res.body;
                     if (data.code === 0) {
-                        location.href = '/index/index';
+                        if (this.redirect_uri === '') {
+                            location.href = '/index/index';
+                        } else {
+                            location.href = data.data.redirect_url;
+                        }
                     } else {
                         alert(data.msg);
                     }

@@ -14,23 +14,6 @@ class AuthVerify
 {
     public function handle($request, \Closure $next)
     {
-//        $accessToken = cookie(SSOServer::ACCESS_TOKEN);
-//        if (is_null($accessToken)) {
-//            $code = input(SSOServer::PARAM_CODE);
-//            if (empty($code)) {
-//                $redirectUrl = SSOServer::getRedirectUrl();
-//                header("location: {$redirectUrl}");
-//            }
-//
-//        }
-
-//        else {
-//            if (! SSOServer::verifyAccessToken()) {
-//                $redirectUrl = SSOServer::getRedirectUrl();
-//                header("location: {$redirectUrl}");
-//            }
-//        }
-
         return $next($request);
     }
 }

@@ -10,7 +10,7 @@ class Index extends BaseController
     public function index()
     {
         View::assign(['redirect_url' => 'http://' . request()->server('HTTP_HOST') . '/'. request()->pathinfo()]);
-        return View::fetch('index/index');
+        return View::fetch('index/welcome');
     }
 
     public function welcome()
