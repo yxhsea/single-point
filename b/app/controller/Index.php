@@ -2,43 +2,44 @@
 namespace app\controller;
 
 use app\BaseController;
-use think\facade\Env;
+use think\facade\View;
+use SSOServer;
 
 class Index extends BaseController
 {
     public function index()
     {
-        // 判断本地的 cookie
-        $accessToken = cookie('access_token');
+        View::assign(['redirect_url' => 'http://' . request()->server('HTTP_HOST') . '/'. request()->pathinfo()]);
+        return View::fetch('index/index');
+    }
+
+    public function welcome()
+    {
+        return View::fetch('index/welcome');
+    }
+
+    public function token()
+    {
+        $code        = input(SSOServer::PARAM_CODE);
+        $redirectUrl = input('redirect_url');
+
+        $accessToken = SSOServer::getAccessToken($code, $redirectUrl);
         if (is_null($accessToken)) {
-            $code = input('code');
-            if (!empty($code)) {
-                // code --> token
-                $client = new \GuzzleHttp\Client();
-                $response = $client->post(Env::get('auth.auth_token'), [
-                    'form_params' => [  //参数组
-                        'code' => $code
-                    ],
-                ]);
-
-                $body = $response->getBody(); //获取响应体，对象
-                $bodyArr = json_decode((string) $body, true); //对象转字串
-                cookie('access_token', $bodyArr['data']['access_token']);
-            } else {
-                // 获取授权
-                $responseType = 'code';
-                $clientId = '123456';
-                $redirectUri = 'http://www.b.com/' . request()->pathinfo();
-                $scope = 'all';
-                $state = 'test';
-
-                $authUrl = Env::get('auth.auth_url');
-
-                $url = $authUrl . "?response_type={$responseType}&client_id={$clientId}&redirect_uri={$redirectUri}&scope={$scope}&state={$state}";
-                header('location: ' . $url);
-            }
+            return json(['code' => 1, 'msg' => 'success', 'data' => ['redirect_url' => SSOServer::getRedirectUrl($redirectUrl)]]);
         }
 
-        return "登录 B 系统成功";
+        return json(['code' => 0, 'msg' => 'success', 'data' => ['access_token' => $accessToken]]);
+    }
+
+    public function logout()
+    {
+        SSOServer::deleteAccessToken();
+        return json(['code' => 0, 'msg' => 'success']);
+    }
+
+    public function proxy()
+    {
+        View::assign(['redirect_url' => 'http://' . request()->server('HTTP_HOST') . '/'. request()->pathinfo()]);
+        return View::fetch('index/proxy');
     }
 }

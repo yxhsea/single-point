@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>业务系统 A</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+    <script src="https://cdn.staticfile.org/vue-resource/1.5.1/vue-resource.min.js"></script>
+</head>
+<body>
+
+<div id="app" class="container" style="margin-top: 20px">
+    <h2 style="text-align: center">A 业务系统</h2>
+    <div style="height: 35px;">
+        <span style="float: left">
+            <span> 欢迎 Admin 登录</span>
+        </span>
+        <span style="float: right">
+            <button type="button" class="btn btn-danger btn-sm" v-on:click="logout">注销</button>
+        </span>
+    </div>
+    <table class="table table-bordered" style="text-align: center">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>用户名称</th>
+            <th>用户邮箱</th>
+            <th>创建时间</th>
+            <th>更新时间</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>张三</td>
+            <td>zhangsan@admin.com</td>
+            <td>2021-01-01 00:00:00</td>
+            <td>2021-01-01 00:00:00</td>
+            <td>
+                <span style="color: green">启用</span>
+            </td>
+            <td>
+                <button type="button" class="btn btn-outline-success btn-sm">查看</button>
+                <button type="button" class="btn btn-outline-primary btn-sm">编辑</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            lists: []
+        },
+        mounted:function () {
+            let code = this.GetQueryString('code');
+            let redirectUrl = '{$redirect_url}';
+            console.log(redirectUrl);
+            let accessToken = this.getCookie('access_token');
+            if (accessToken === null) {
+                this.getToken(code, redirectUrl);
+            }
+        },
+        methods: {
+            getToken(code, redirectUrl) {
+                //发送 post 请求
+                this.$http.post(
+                    '/index/token',
+                    {
+                        'code': code,
+                        'redirect_url': redirectUrl
+                    },
+                    {
+                        emulateJSON: true
+                    }
+                ).then(function(res) {
+                    let data = res.body;
+                    let code = data.code;
+                    if (code === 0) {
+                        let accessToken = data.data.access_token;
+                        document.cookie="access_token=" + accessToken;
+                        // location.href = redirectUrl;
+                    } else if (code === 1){
+                        location.href = data.data.redirect_url;
+                    }
+                }, function(res){
+                    console.log(res.status);
+                });
+            },
+            logout() {
+                // 发送get请求
+                this.$http.get('/index/logout').then(function(res){
+                    location.href = '/';
+                },function(){
+                    console.log('请求失败处理');
+                });
+            },
+            GetQueryString(name) {
+                var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+                var r = window.location.search.substr(1).match(reg);
+                if(r!=null)return  unescape(r[2]); return null;
+            },
+            getCookie(name){
+                var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+                if(arr=document.cookie.match(reg))
+                    return unescape(arr[2]);
+                else
+                    return null;
+            },
+            delCookie(name) {
+                var exp = new Date();
+                exp.setTime(exp.getTime() - 1);
+                var cval=getCookie(name);
+                if(cval!=null) {
+                    document.cookie= name + "="+cval+";expires="+exp.toGMTString();
+                }
+            }
+        }
+    });
+</script>
+</html>
