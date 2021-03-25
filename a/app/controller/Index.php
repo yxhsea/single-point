@@ -15,7 +15,7 @@ class Index extends BaseController
 
     public function welcome()
     {
-        return View::fetch('index/welcome');
+        return View::fetch('index/index');
     }
 
     public function token()
