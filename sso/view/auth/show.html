@@ -54,7 +54,7 @@
                         location.href = '/index/index';
                     }
                     location.href = this.redirect_uri;
-                }, 1500);
+                }, 3000);
             }
         },
         methods: {
@@ -73,6 +73,7 @@
                 this.$http.post(
                     '/auth/verify',
                     {
+                        redirect_uri: this.redirect_uri,
                         account: this.account,
                         password: this.password
                     },
